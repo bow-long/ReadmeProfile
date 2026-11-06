@@ -1,0 +1,45 @@
+name: Render Slice GIF
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build GIF
+        id: build
+        run: |
+          TS=$(python -m renderer.build_gif --slice-json slice.json --output-gif assets/slice.gif --preview assets/preview.png --temp-dir /tmp/slice-frames)
+          echo "timestamp=$TS" >> "$GITHUB_OUTPUT"
+
+      - name: Update metadata
+        run: python -m renderer.update_metadata --timestamp "${{ steps.build.outputs.timestamp }}" --assets-dir assets
+
+      - name: Commit generated assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/slice.gif assets/preview.png assets/latest_slice.json assets/stats.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: update slice animation assets"
+          git push

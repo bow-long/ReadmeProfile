@@ -1,0 +1,8 @@
+{
+  "name": "BAO LONG HO",
+  "timestamp": "2026-11-06T15:30:00Z",
+  "slice": {
+    "start": [120, 80],
+    "end": [780, 240]
+  }
+}
