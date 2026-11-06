@@ -75,15 +75,23 @@ def render_frames(slice_json: Path, out_dir: Path, canvas: Canvas = Canvas()) ->
     out_dir.mkdir(parents=True, exist_ok=True)
     font = ImageFont.load_default()
 
-    frames: list[Path] = []
     dt = 1 / FPS
+    half = TOTAL_FRAMES // 2
+    states: list[list] = []
+    sim_bodies = bodies
+    for _ in range(half + 1):
+        states.append(sim_bodies)
+        sim_bodies = step_bodies(sim_bodies, dt)
+
+    frames: list[Path] = []
     slash_visible_until = int(FPS * 1.7)
 
     for i in range(TOTAL_FRAMES):
+        frame_bodies = states[i] if i <= half else states[TOTAL_FRAMES - i]
         img = Image.new("RGBA", (canvas.width, canvas.height), (13, 17, 23, 255))
         draw = ImageDraw.Draw(img, "RGBA")
 
-        for body in bodies:
+        for body in frame_bodies:
             coords = [(float(x), float(y)) for x, y in body.polygon.exterior.coords]
             _draw_poly(draw, coords, (245, 245, 245))
 
@@ -93,9 +101,7 @@ def render_frames(slice_json: Path, out_dir: Path, canvas: Canvas = Canvas()) ->
         draw.text((40, canvas.height - 70), f"Last Slice:\n{ts_overlay}", fill=(155, 170, 190), font=font)
 
         frame_path = out_dir / f"frame_{i:03d}.png"
-        img.convert("P").save(frame_path, optimize=True)
+        img.save(frame_path, optimize=True)
         frames.append(frame_path)
-
-        bodies = step_bodies(bodies, dt)
 
     return frames, ts_overlay

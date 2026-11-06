@@ -23,10 +23,10 @@ This repository generates a pre-rendered Fruit Ninja-style slicing animation for
 
 ```bash
 pip install -r requirements.txt
-python -m renderer.build_gif --slice-json slice.json --output-gif assets/slice.gif --preview assets/preview.png --temp-dir /tmp/slice-frames
-python -m renderer.update_metadata --timestamp "$(python -m renderer.build_gif --slice-json slice.json --output-gif assets/slice.gif --preview assets/preview.png --temp-dir /tmp/slice-frames)" --assets-dir assets
+TS=$(python -m renderer.build_gif --slice-json slice.json --output-gif assets/slice.gif --preview assets/preview.png --temp-dir /tmp/slice-frames)
+python -m renderer.update_metadata --timestamp "$TS" --assets-dir assets
 ```
 
 ### Optional GitHub Pages
 
-You can publish `assets/preview.png` and metadata JSON files using GitHub Pages if you want external embedding.
+If desired, enable GitHub Pages and publish `assets/preview.png`, `assets/latest_slice.json`, and `assets/stats.json` from your selected Pages source.

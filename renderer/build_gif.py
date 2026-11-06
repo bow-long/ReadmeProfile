@@ -11,12 +11,12 @@ from renderer.render import FPS, render_frames
 def build_gif(slice_json: Path, output_gif: Path, preview_png: Path, temp_dir: Path) -> str:
     frames, ts = render_frames(slice_json=slice_json, out_dir=temp_dir)
 
-    images = [imageio.imread(frame) for frame in frames]
+    arrays = [imageio.imread(frame) for frame in frames]
     output_gif.parent.mkdir(parents=True, exist_ok=True)
-    imageio.mimsave(output_gif, images, duration=1 / FPS, loop=0)
+    imageio.mimsave(output_gif, arrays, duration=1 / FPS, loop=0)
 
     preview_png.parent.mkdir(parents=True, exist_ok=True)
-    imageio.imwrite(preview_png, images[min(10, len(images) - 1)])
+    imageio.imwrite(preview_png, arrays[min(10, len(arrays) - 1)])
     return ts
 
 

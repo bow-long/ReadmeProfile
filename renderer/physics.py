@@ -48,21 +48,22 @@ def init_bodies(fragments: Iterable[Polygon], slice_line: LineString) -> list[Bo
 def step_bodies(bodies: list[Body], dt: float, gravity: float = 380.0) -> list[Body]:
     stepped: list[Body] = []
     for body in bodies:
-        body.velocity[1] += gravity * dt
-        dx, dy = body.velocity * dt
-        body.angle += body.angular_velocity * dt
-        body.angular_velocity *= 0.999
+        velocity = body.velocity.copy()
+        velocity[1] += gravity * dt
+        dx, dy = velocity * dt
+        angle = body.angle + body.angular_velocity * dt
+        angular_velocity = body.angular_velocity * 0.999
 
         moved = translate(body.polygon, xoff=float(dx), yoff=float(dy))
         c = np.array(moved.centroid.coords[0], dtype=float)
-        rotated = rotate(moved, body.angle * 57.2958, origin=Point(c[0], c[1]))
+        rotated = rotate(moved, angle * 57.2958, origin=Point(c[0], c[1]))
 
         stepped.append(
             Body(
                 polygon=rotated,
-                velocity=body.velocity,
-                angle=body.angle,
-                angular_velocity=body.angular_velocity,
+                velocity=velocity,
+                angle=angle,
+                angular_velocity=angular_velocity,
                 centroid=c,
             )
         )
